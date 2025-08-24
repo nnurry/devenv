@@ -1,0 +1,73 @@
+services:
+  nnurry-mysql:
+    image: mysql:8.4
+    container_name: nnurry-mysql
+    restart: always
+    network_mode: host
+    env_file:
+      - mysql.env
+    volumes:
+      - ./scripts/init-mysql.sql:/data/application/init.sql
+      - ./volumes/mysql-data:/var/lib/mysql
+    command: --init-file /data/application/init.sql
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1g
+
+  nnurry-redis:
+    image: redis:7-alpine
+    container_name: nnurry-redis
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256m
+
+  nnurry-postgres:
+    image: postgres:16
+    container_name: nnurry-postgres
+    restart: always
+    network_mode: host
+    shm_size: 1g
+    env_file:
+      - postgresql.env
+    volumes:
+      - nnurry-postgres-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 1.5g
+        
+  dev-container:
+    build:
+      dockerfile: ./dockerfiles/devcontainer.Dockerfile
+      context: .
+    container_name: dev-container
+    restart: always
+    network_mode: host
+    tty: true
+    stdin_open: true
+    privileged: true
+    env_file:
+      - dev-container.env
+    working_dir: /develop
+    volumes:
+      - dev-container-data:/develop
+      # - ./volumes/dev-container/tmp/:/tmp/
+      - dev-container-go-pkg:/develop/go
+      - ~/.ssh:/develop/.host-ssh:ro
+      - /etc/resolv.conf:/etc/resolv.conf:ro
+    deploy:
+      resources:
+        limits:
+          memory: 6g
+
+volumes:
+  nnurry-postgres-data:
+  dev-container-data:
+  dev-container-go-pkg:
