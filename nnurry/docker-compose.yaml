@@ -1,0 +1,60 @@
+services:
+  dev-container:
+    build:
+      dockerfile: ./dockerfiles/devcontainer.Dockerfile
+      context: .
+      args:
+        - DEVCONTAINER_BASE_DIR=${DEVCONTAINER_BASE_DIR:-/develop}
+    container_name: dev-container
+    network_mode: host
+    tty: true
+    stdin_open: true
+    privileged: true
+    env_file:
+      - dev-container.env
+    working_dir: ${DEVCONTAINER_BASE_DIR:-/develop}
+    volumes:
+      - ~/.ssh:${DEVCONTAINER_BASE_DIR:-/develop}/.host-ssh:ro
+      - /etc/resolv.conf:/etc/resolv.conf:ro
+
+      - dev-container-data:${DEVCONTAINER_BASE_DIR:-/develop}
+      - dev-container-go-pkg:${DEVCONTAINER_BASE_DIR:-/develop}/go
+    deploy:
+      resources:
+        limits:
+          memory: 6g
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256m
+
+  postgres:
+    image: postgres:18
+    container_name: postgres
+    restart: always
+    network_mode: host
+    shm_size: 1g
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=nnurry
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 1.5g
+
+volumes:
+  postgres-data:
+  dev-container-data:
+  dev-container-go-pkg:
