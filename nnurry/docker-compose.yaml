@@ -4,7 +4,7 @@ services:
       dockerfile: ./dockerfiles/devcontainer.Dockerfile
       context: .
       args:
-        - DEVCONTAINER_BASE_DIR=${DEVCONTAINER_BASE_DIR:-/develop}
+        - DEVCONTAINER_BASE_DIR=${DEVCONTAINER_BASE_DIR}
     container_name: dev-container
     network_mode: host
     tty: true
@@ -12,13 +12,13 @@ services:
     privileged: true
     env_file:
       - dev-container.env
-    working_dir: ${DEVCONTAINER_BASE_DIR:-/develop}
+    working_dir: ${DEVCONTAINER_BASE_DIR}
     volumes:
-      - ~/.ssh:${DEVCONTAINER_BASE_DIR:-/develop}/.host-ssh:ro
+      - ~/.ssh:${DEVCONTAINER_BASE_DIR}/.host-ssh:ro
       - /etc/resolv.conf:/etc/resolv.conf:ro
 
-      - dev-container-data:${DEVCONTAINER_BASE_DIR:-/develop}
-      - dev-container-go-pkg:${DEVCONTAINER_BASE_DIR:-/develop}/go
+      - dev-container-data:${DEVCONTAINER_BASE_DIR}
+      - dev-container-go-pkg:${DEVCONTAINER_BASE_DIR}/go
     deploy:
       resources:
         limits:
