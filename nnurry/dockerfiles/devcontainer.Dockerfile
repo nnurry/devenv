@@ -16,6 +16,8 @@ RUN dnf install -y \
     bat \
     tree
 
+RUN bash -c "curl -fsSL https://claude.ai/install.sh | bash"
+
 ARG DEVCONTAINER_BASE_DIR
 
 RUN git config --global core.sshCommand "ssh -F ${DEVCONTAINER_BASE_DIR}/.ssh/config"
